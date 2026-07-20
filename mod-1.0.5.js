@@ -795,9 +795,11 @@
       var pageBasic = new cc.Node("jhvnmod-basic-page");
       var pageAuto = new cc.Node("jhvnmod-auto-page");
       var pageEvent = new cc.Node("jhvnmod-event-page");
+      var pageSupport = new cc.Node("jhvnmod-support-page");
       panel.addChild(pageBasic);
       panel.addChild(pageAuto);
       panel.addChild(pageEvent);
+      panel.addChild(pageSupport);
       function refreshAll(){
         for (var i = 0; i < refreshers.length; i++) refreshers[i]();
       }
@@ -827,16 +829,19 @@
         addText(parent, title, 17, 340, 34, -panelWidth / 2 + 18, y, "left");
         addButton(parent, buttonTitle, 104, 32, panelWidth / 2 - 68, y, action);
       }
-      var tabBasic = addButton(panel, "CƠ BẢN", 145, 34, -154, panelHeight / 2 - 70, function(){ setTab(0); });
-      var tabAuto = addButton(panel, "AUTO", 145, 34, 0, panelHeight / 2 - 70, function(){ setTab(1); });
-      var tabEvent = addButton(panel, "EVENT", 145, 34, 154, panelHeight / 2 - 70, function(){ setTab(2); });
+      var tabBasic = addButton(panel, "CƠ BẢN", 125, 34, -187.5, panelHeight / 2 - 70, function(){ setTab(0); });
+      var tabAuto = addButton(panel, "AUTO", 125, 34, -62.5, panelHeight / 2 - 70, function(){ setTab(1); });
+      var tabEvent = addButton(panel, "EVENT", 125, 34, 62.5, panelHeight / 2 - 70, function(){ setTab(2); });
+      var tabSupport = addButton(panel, "HỖ TRỢ", 125, 34, 187.5, panelHeight / 2 - 70, function(){ setTab(3); });
       function setTab(index){
         pageBasic.active = index === 0;
         pageAuto.active = index === 1;
         pageEvent.active = index === 2;
+        pageSupport.active = index === 3;
         tabBasic.setState(index === 0, "CƠ BẢN");
         tabAuto.setState(index === 1, "AUTO");
         tabEvent.setState(index === 2, "EVENT");
+        tabSupport.setState(index === 3, "HỖ TRỢ");
       }
 
       var y = panelHeight / 2 - 116;
@@ -873,6 +878,40 @@
       addToggleRow(pageEvent, "Auto QC event thật", "autoEventAd", y); y -= gap;
       addActionRow(pageEvent, "Hiện/mở event ẩn", "MỞ", y, openHiddenEvent); y -= gap;
       addText(pageEvent, "QC chỉ nhận sau khi server xác nhận xem hết.", 15, 470, 32, 0, y - 8, "center");
+
+      y = panelHeight / 2 - 116;
+      addText(pageSupport, "Xóa dữ liệu cục bộ", 17, 340, 34, -panelWidth / 2 + 18, y, "left");
+      var clearDataArmed = false;
+      var clearDataButton = addButton(pageSupport, "XÓA", 104, 32, panelWidth / 2 - 68, y, function(){
+        if (!clearDataArmed) {
+          clearDataArmed = true;
+          clearDataButton.setState(false, "XÁC NHẬN");
+          L("clear local data confirmation requested");
+          flush();
+          return;
+        }
+        try {
+          if (!cc.sys || !cc.sys.localStorage || typeof cc.sys.localStorage.clear !== "function") {
+            L("clear local data unavailable");
+            clearDataArmed = false;
+            clearDataButton.setState(false, "XÓA");
+            flush();
+            return;
+          }
+          cc.sys.localStorage.clear();
+          clearDataArmed = false;
+          clearDataButton.setState(false, "ĐÃ XÓA");
+          L("local storage cleared; server account/ban unchanged");
+          flush();
+        } catch(e) {
+          clearDataArmed = false;
+          clearDataButton.setState(false, "XÓA");
+          L("clear local data error "+e);
+          flush();
+        }
+      });
+      addText(pageSupport, "Chỉ xóa dữ liệu lưu cục bộ; không gỡ khóa server.", 15, 470, 40, 0, y - 48, "center");
+
       setTab(0);
       refreshAll();
 
