@@ -1,4 +1,4 @@
-/* jhvnios mod - v2.4. Dat file nay tai thu muc goc jhvnios.app/mod.js. */
+/* jhvnios mod - v2.3. Dat file nay tai thu muc goc jhvnios.app/mod.js. */
 (function () {
   "use strict";
 
